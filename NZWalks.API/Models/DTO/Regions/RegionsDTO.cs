@@ -1,6 +1,6 @@
 ﻿namespace NZWalks.API.Models.DTO.Regions
 {
-    public class ReginosDTO
+    public class RegionsDTO
     {
         public Guid Id { get; set; }
         public string Code { get; set; }
