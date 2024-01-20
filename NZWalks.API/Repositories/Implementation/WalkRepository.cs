@@ -33,9 +33,32 @@ namespace NZWalks.API.Repositories.Implementation
             return walkData;
         }
 
-        public async Task<List<Walk>> GetAllWalkAsync()
+        public async Task<List<Walk>> GetAllWalkAsync(string? filterOn=null, string? filterValue = null, string? orderBy = null, 
+            bool isAscending = true, int pageNumber = 1, int pageSize = 5)
         {
-            return await dbContext.Walks.ToListAsync();
+            var walkData = dbContext.Walks.AsQueryable();
+            if(!string.IsNullOrEmpty(filterOn)&&!string.IsNullOrEmpty(filterValue))
+            {
+                if (filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    walkData = walkData.Where(x => x.Name.Contains(filterValue));
+                }
+                else if(filterOn.Equals("Description", StringComparison.OrdinalIgnoreCase))
+                {
+                    walkData = walkData.Where(x => x.Description.Contains(filterValue));
+                }
+            }
+             if(!string.IsNullOrEmpty(orderBy))
+            {
+                if (orderBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    walkData = isAscending ? walkData.OrderBy(x => x.Name):walkData.OrderByDescending(x=>x.Name);
+                }
+            }
+          
+            var skipResult = (pageNumber - 1) * pageSize;
+
+            return await walkData.Skip(skipResult).Take(pageSize).ToListAsync();
         }
 
         public async Task<Walk?> GetWalkAsync(Guid Id)
